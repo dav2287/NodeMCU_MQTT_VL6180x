@@ -1,9 +1,9 @@
-
+git
 
 /******************************************************************************
-Read values from VL6180x sensor and push over MQTT
+  Read values from VL6180x sensor and push over MQTT
 
-On a nodemcu esp12e development board
+  On a nodemcu esp12e development board
  ******************************************************************************/
 
 #include <Wire.h>
@@ -12,13 +12,13 @@ On a nodemcu esp12e development board
 #include <SparkFun_VL6180X.h>
 
 /*const float GAIN_1    = 1.01;  // Actual ALS Gain of 1.01
-const float GAIN_1_25 = 1.28;  // Actual ALS Gain of 1.28
-const float GAIN_1_67 = 1.72;  // Actual ALS Gain of 1.72
-const float GAIN_2_5  = 2.6;   // Actual ALS Gain of 2.60
-const float GAIN_5    = 5.21;  // Actual ALS Gain of 5.21
-const float GAIN_10   = 10.32; // Actual ALS Gain of 10.32
-const float GAIN_20   = 20;    // Actual ALS Gain of 20
-const float GAIN_40   = 40;    // Actual ALS Gain of 40
+  const float GAIN_1_25 = 1.28;  // Actual ALS Gain of 1.28
+  const float GAIN_1_67 = 1.72;  // Actual ALS Gain of 1.72
+  const float GAIN_2_5  = 2.6;   // Actual ALS Gain of 2.60
+  const float GAIN_5    = 5.21;  // Actual ALS Gain of 5.21
+  const float GAIN_10   = 10.32; // Actual ALS Gain of 10.32
+  const float GAIN_20   = 20;    // Actual ALS Gain of 20
+  const float GAIN_40   = 40;    // Actual ALS Gain of 40
 */
 #define VL6180X_ADDRESS 0x29
 
@@ -53,13 +53,13 @@ void setup() {
   sensor.getIdentification(&identification); // Retrieve manufacture info from device memory
   printIdentification(&identification); // Helper function to print all the Module information
 
-    if(sensor.VL6180xInit() != 0){
+  if (sensor.VL6180xInit() != 0) {
     Serial.println("FAILED TO INITALIZE"); //Initialize device and check for errors
-  }; 
+  };
 
   sensor.VL6180xDefautSettings(); //Load default settings to get started.
-  
-    delay(1000); // delay 1s
+
+  delay(1000); // delay 1s
 
 
 }
@@ -137,8 +137,8 @@ void VL6180xloop() {
 
   //Get Ambient Light level and report in LUX
   Serial.print("Ambient Light Level (Lux) = ");
-  
-  //Input GAIN for light levels, 
+
+  //Input GAIN for light levels,
   // GAIN_20     // Actual ALS Gain of 20
   // GAIN_10     // Actual ALS Gain of 10.32
   // GAIN_5      // Actual ALS Gain of 5.21
@@ -147,17 +147,17 @@ void VL6180xloop() {
   // GAIN_1_25   // Actual ALS Gain of 1.28
   // GAIN_1      // Actual ALS Gain of 1.01
   // GAIN_40     // Actual ALS Gain of 40
-  
+
   Serial.println( sensor.getAmbientLight(GAIN_1) );
 
   //Get Distance and report in mm
   Serial.print("Distance measured (mm) = ");
-  Serial.println( sensor.getDistance() ); 
+  Serial.println( sensor.getDistance() );
 
-  delay(500);  
+  delay(500);
 };
 
-void printIdentification(struct VL6180xIdentification *temp){
+void printIdentification(struct VL6180xIdentification *temp) {
   Serial.print("Model ID = ");
   Serial.println(temp->idModel);
 
@@ -169,7 +169,7 @@ void printIdentification(struct VL6180xIdentification *temp){
   Serial.print("Module Rev = ");
   Serial.print(temp->idModuleRevMajor);
   Serial.print(".");
-  Serial.println(temp->idModuleRevMinor);  
+  Serial.println(temp->idModuleRevMinor);
 
   Serial.print("Manufacture Date = ");
   Serial.print((temp->idDate >> 3) & 0x001F);
