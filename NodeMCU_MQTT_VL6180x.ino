@@ -1,5 +1,3 @@
-git
-
 /******************************************************************************
   Read values from VL6180x sensor and push over MQTT
 
@@ -27,7 +25,7 @@ VL6180x sensor(VL6180X_ADDRESS);
 
 // Update these with values suitable for your network.
 
-const char* ssid = "PartIII";
+const char* ssid = "Part III";
 const char* password = "no treble";
 const char* mqtt_server = "m10.cloudmqtt.com";
 
@@ -36,33 +34,6 @@ PubSubClient client(espClient);
 long lastMsg = 0;
 char msg[50];
 int value = 0;
-
-void setup() {
-  pinMode(BUILTIN_LED, OUTPUT);
-  Serial.begin(115200); //Start Serial at 115200bps
-
-  // Wifi and MQTT
-  setup_wifi();
-  client.setServer(mqtt_server, 17744);
-  client.setCallback(callback);
-
-  // I2C
-  Wire.begin(); //Start I2C library
-  delay(100); // delay .1s
-
-  sensor.getIdentification(&identification); // Retrieve manufacture info from device memory
-  printIdentification(&identification); // Helper function to print all the Module information
-
-  if (sensor.VL6180xInit() != 0) {
-    Serial.println("FAILED TO INITALIZE"); //Initialize device and check for errors
-  };
-
-  sensor.VL6180xDefautSettings(); //Load default settings to get started.
-
-  delay(1000); // delay 1s
-
-
-}
 
 void setup_wifi() {
 
@@ -105,58 +76,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 }
 
-void reconnect() {
-  // Loop until we're reconnected
-  while (!client.connected()) {
-    Serial.print("Attempting MQTT connection...");
-    // Attempt to connect
-    if (client.connect("ESP8266Client")) {
-      Serial.println("connected");
-      // Once connected, publish an announcement...
-      client.publish("outTopic", "hello world");
-      // ... and resubscribe
-      client.subscribe("inTopic");
-    } else {
-      Serial.print("failed, rc=");
-      Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
-      delay(5000);
-    }
-  }
-}
-
-void loop() {
-  if (!client.connected()) {
-    reconnect();
-  }
-  client.loop();
-}
-
-void VL6180xloop() {
-
-  //Get Ambient Light level and report in LUX
-  Serial.print("Ambient Light Level (Lux) = ");
-
-  //Input GAIN for light levels,
-  // GAIN_20     // Actual ALS Gain of 20
-  // GAIN_10     // Actual ALS Gain of 10.32
-  // GAIN_5      // Actual ALS Gain of 5.21
-  // GAIN_2_5    // Actual ALS Gain of 2.60
-  // GAIN_1_67   // Actual ALS Gain of 1.72
-  // GAIN_1_25   // Actual ALS Gain of 1.28
-  // GAIN_1      // Actual ALS Gain of 1.01
-  // GAIN_40     // Actual ALS Gain of 40
-
-  Serial.println( sensor.getAmbientLight(GAIN_1) );
-
-  //Get Distance and report in mm
-  Serial.print("Distance measured (mm) = ");
-  Serial.println( sensor.getDistance() );
-
-  delay(500);
-};
-
 void printIdentification(struct VL6180xIdentification *temp) {
   Serial.print("Model ID = ");
   Serial.println(temp->idModel);
@@ -185,5 +104,98 @@ void printIdentification(struct VL6180xIdentification *temp) {
   Serial.println();
   Serial.println();
 }
+
+void setup() {
+  pinMode(BUILTIN_LED, OUTPUT);
+  Serial.begin(115200); //Start Serial at 115200bps
+
+  // Wifi and MQTT
+  setup_wifi();
+  client.setServer(mqtt_server, 17744);
+  client.setCallback(callback);
+
+  // I2C
+  Wire.begin(); //Start I2C library
+  delay(100); // delay .1s
+
+  sensor.getIdentification(&identification); // Retrieve manufacture info from device memory
+  printIdentification(&identification); // Helper function to print all the Module information
+
+  if (sensor.VL6180xInit() != 0) {
+    Serial.println("FAILED TO INITALIZE"); //Initialize device and check for errors
+  };
+
+  sensor.VL6180xDefautSettings(); //Load default settings to get started.
+
+  delay(1000); // delay 1s
+
+
+}
+
+
+void reconnect() {
+  // Loop until we're reconnected
+  while (!client.connected()) {
+    Serial.print("Attempting MQTT connection...");
+    // Attempt to connect
+    char tempClient[5];
+    if (client.connect(tempClient,"xkqodbva","cFDxVvgyL9yH")) {
+      Serial.println("connected");
+      // Once connected, publish an announcement...
+      client.publish("outTopic", "hello world");
+      // ... and resubscribe
+      client.subscribe("inTopic");
+    } else {
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      Serial.println(" try again in 5 seconds");
+      // Wait 5 seconds before retrying
+      delay(5000);
+    }
+  }
+}
+
+void loop() {
+  if (!client.connected()) {
+    reconnect();
+  }
+  client.loop();
+
+  long now = millis();
+  if (now - lastMsg > 2000) {
+    lastMsg = now;
+    ++value;
+    snprintf (msg, 75, "hello world #%ld", value);
+    Serial.print("Publish message: ");
+    Serial.println(msg);
+    client.publish("outTopic", msg);
+  }
+}
+
+void VL6180xloop() {
+
+  //Get Ambient Light level and report in LUX
+  Serial.print("Ambient Light Level (Lux) = ");
+
+  //Input GAIN for light levels,
+  // GAIN_20     // Actual ALS Gain of 20
+  // GAIN_10     // Actual ALS Gain of 10.32
+  // GAIN_5      // Actual ALS Gain of 5.21
+  // GAIN_2_5    // Actual ALS Gain of 2.60
+  // GAIN_1_67   // Actual ALS Gain of 1.72
+  // GAIN_1_25   // Actual ALS Gain of 1.28
+  // GAIN_1      // Actual ALS Gain of 1.01
+  // GAIN_40     // Actual ALS Gain of 40
+
+  Serial.println( sensor.getAmbientLight(GAIN_1) );
+
+  //Get Distance and report in mm
+  Serial.print("Distance measured (mm) = ");
+  Serial.println( sensor.getDistance() );
+
+  delay(500);
+};
+
+
 
 
